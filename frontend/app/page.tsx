@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import ReactMarkdown from "react-markdown" // <--- LA CLAVE PARA EL FORMATO
 import { Send, ChefHat, Sparkles, Loader2, History, UtensilsCrossed, Calendar, Trash2 } from "lucide-react"
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 // --- TIPOS ---
 interface RecetaData {
   id: number
@@ -48,7 +50,7 @@ export default function ChefDashboard() {
 
   const cargarHistorial = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/historial?limit=20")
+      const res = await fetch(`${API_URL}/api/historial?limit=20`)
       if (res.ok) {
         const data = await res.json()
         setHistorial(data)
@@ -63,7 +65,7 @@ export default function ChefDashboard() {
     setLoading(true)
     setReceta("")
     try {
-      const response = await fetch("http://localhost:8000/api/generar", {
+      const response = await fetch(`${API_URL}/api/generar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ingredientes }),

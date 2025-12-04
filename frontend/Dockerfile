@@ -1,19 +1,31 @@
-# Usamos Node.js imagen ligera
-FROM node:18-alpine
+# /frontend/Dockerfile
 
+# --- ETAPA 1: Construcción (Builder) ---
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+# Instalamos dependencias
+RUN npm ci 
+COPY . .
+# Construimos la app de Next.js para producción
+RUN npm run build
+
+# --- ETAPA 2: Ejecución (Runner) ---
+FROM node:18-alpine AS runner
 WORKDIR /app
 
-# Copiar configuración de dependencias
-COPY package*.json ./
+ENV NODE_ENV=production
 
-# Instalar dependencias
-RUN npm install
+# Copiamos solo los archivos necesarios de la etapa anterior
+COPY --from=builder /app/package.json .
+COPY --from=builder /app/package-lock.json .
+COPY --from=builder /app/next.config.mjs ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/static ./.next/static
+# Copiamos la carpeta .next completa (simplificado para evitar errores de standalone)
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copiar el resto del código del frontend
-COPY . .
-
-# Exponer el puerto de Next.js
 EXPOSE 3000
 
-# Arrancar en modo desarrollo (más seguro para demos rápidas)
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
