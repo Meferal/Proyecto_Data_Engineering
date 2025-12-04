@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Servicio 1: Tu API (Backend)
+  api:
+    build: .
+    container_name: chef-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env  # Lee tu API KEY automáticamente
+    volumes:
+      - ./app:/code/app # Hot-reload: si cambias código en Windows, cambia en Docker
+    networks:
+      - chef-network
+
+  # Servicio 2: Tu Web (Frontend)
+  web:
+    build: ./frontend
+    container_name: chef-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - api # Espera a que la API arranque antes de iniciar el frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - chef-network
+
+networks:
+  chef-network:
+    driver: bridge

@@ -146,6 +146,8 @@ venv.bak/
 
 # Datasets
 dataset/
+*.db
+.DS_Store
 
 # Spyder project settings
 .spyderproject
