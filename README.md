@@ -9,6 +9,8 @@
 ![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-8E75B2?logo=google&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-Descargar%20Imágenes-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/repository/docker/meferal/proyecto_data_engineering/general)
+
 **Sistema Full Stack para la generación de recetas mediante Inteligencia Artificial Generativa.**
 **Arquitectura de microservicios contenerizada.**
 
@@ -116,6 +118,28 @@ docker-compose up --build
 * Backend (Documentación API): http://localhost:8000/docs
 
 
+## 🐳 Uso Rápido con Docker Hub
+
+Si no quieres construir el código fuente, puedes descargar las imágenes ya compiladas directamente desde mi repositorio público:
+
+**Repositorio oficial:** [meferal/proyecto_data_engineering](https://hub.docker.com/repository/docker/meferal/proyecto_data_engineering/general)
+
+Para ejecutar el proyecto usando las imágenes de la nube, crea un archivo `docker-compose.yml` con este contenido y ejecuta `docker-compose up`:
+
+```yaml
+version: '3.8'
+services:
+  api:
+    image: meferal/proyecto_data_engineering:backend
+    ports: ["8000:8000"]
+    env_file: [".env"]
+  web:
+    image: meferal/proyecto_data_engineering:frontend
+    ports: ["3000:3000"]
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
 ## 📡 Documentación de la API  
 
 La API cuenta con los siguientes endpoints principales:
@@ -130,17 +154,30 @@ Respuesta: JSON con la receta formateada en Markdown.
 GET /api/historial
 Devuelve el listado de las últimas recetas generadas y guardadas en la base de datos.
 
-## ☁️ Despliegue en Cloud (Render)
+## ☁️ Guía de Despliegue (Cloud Ready)
 
-Este proyecto está configurado para desplegarse automáticamente en Render.
+El proyecto está dockerizado y preparado para desplegarse en cualquier plataforma de contenedores (Render, Railway, AWS ECS).
 
-Backend: Se despliega como un Web Service usando el Dockerfile de la raíz.
+### Configuración para Render.com
 
-Variable de entorno requerida: GEMINI_API_KEY.
+Para poner el proyecto en producción, se deben crear dos servicios web basados en Docker:
 
-Frontend: Se despliega como un Web Service usando el Dockerfile dentro de la carpeta /frontend.
+#### 1. Backend (API)
 
-Variable de entorno requerida: NEXT_PUBLIC_API_URL (La URL que Render asigna a tu backend).
+* **Tipo:** Web Service
+* **Runtime:** Docker
+* **Root Directory:** `.` (Raíz del repositorio)
+* **Variables de Entorno:**
+    * `GEMINI_API_KEY`: Tu clave de Google AI.
+    * `LLM_PROVIDER`: `gemini`
+
+#### 2. Frontend (Web)
+
+* **Tipo:** Web Service
+* **Runtime:** Docker
+* **Root Directory:** `frontend`
+* **Variables de Entorno:**
+    * `NEXT_PUBLIC_API_URL`: La URL pública que Render asigne a tu Backend (ej: `https://chef-backend.onrender.com`).
 
 ## 🧑‍💻 Autores
 
